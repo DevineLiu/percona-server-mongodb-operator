@@ -139,8 +139,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 }
 
 type CronRegistry struct {
-	crons *cron.Cron
-	jobs  map[string]Shedule
+	crons      *cron.Cron
+	jobs       map[string]Shedule
+	backupJobs *sync.Map
 }
 
 type Shedule struct {
@@ -150,8 +151,9 @@ type Shedule struct {
 
 func NewCronRegistry() CronRegistry {
 	c := CronRegistry{
-		crons: cron.New(),
-		jobs:  make(map[string]Shedule),
+		crons:      cron.New(),
+		jobs:       make(map[string]Shedule),
+		backupJobs: new(sync.Map),
 	}
 
 	c.crons.Start()
@@ -535,7 +537,7 @@ func (r *ReconcilePerconaServerMongoDB) Reconcile(ctx context.Context, request r
 			return reconcile.Result{}, fmt.Errorf("failed to delete orphan PVCs: %v", err)
 		}
 	}
-  
+
 	err = r.exportServices(ctx, cr)
 	if err != nil {
 		return reconcile.Result{}, errors.Wrap(err, "export services")
