@@ -1401,11 +1401,6 @@ func (r *ReconcilePerconaServerMongoDB) reconcileStatefulSet(
 	if sfsSpec.Template.Annotations == nil {
 		sfsSpec.Template.Annotations = make(map[string]string)
 	}
-	for k, v := range sfs.Spec.Template.Annotations {
-		if _, ok := sfsSpec.Template.Annotations[k]; !ok {
-			sfsSpec.Template.Annotations[k] = v
-		}
-	}
 
 	if cr.CompareVersion("1.8.0") < 0 {
 		sfs, err := r.getRsStatefulset(ctx, cr, replset.Name)
